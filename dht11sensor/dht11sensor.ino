@@ -37,112 +37,65 @@ void setupInitDht() {
 }
 
 void loopReadDht() {
-    /*--------43----------*/
-    float h43 = dht43.readHumidity();
-    float t43 = dht43.readTemperature();
 
-    if (isnan(h43) || isnan(t43)) {
-      Serial.println("I can not read the testimony 43");
-//      return;
-    }
-    String out43 = "d43/h:"+String(h43)+"/t/"+String(t43)+"|";
+    float dht [10][3];
+
+    /*--------43----------*/
+    dht[0][0] = 43;
+    dht[0][1] = dht43.readHumidity();
+    dht[0][2] = dht43.readTemperature();
     /*--------43----------*/
     /*--------44----------*/
-    float h44 = dht44.readHumidity();
-    float t44 = dht44.readTemperature();
-
-    if (isnan(h44) || isnan(t44)) {
-      Serial.println("I can not read the testimony 44");
-//      return;
-    }
-    String out44 = "d44/h:"+String(h44)+"/t/"+String(t44)+"|";
+    dht[1][0] = 44;
+    dht[1][1] = dht44.readHumidity();
+    dht[1][1] = dht44.readTemperature();
     /*--------44----------*/
     /*--------45----------*/
-    float h45 = dht45.readHumidity();
-    float t45 = dht45.readTemperature();
-
-    if (isnan(h45) || isnan(t45)) {
-      Serial.println("I can not read the testimony 45");
-//      return;
-    }
-    String out45 = "d45/h:"+String(h45)+"/t/"+String(t45)+"|";
+    dht[2][0] = 45;
+    dht[2][1] = dht45.readHumidity();
+    dht[2][2] = dht45.readTemperature();
     /*--------45----------*/
     /*--------46----------*/
-    float h46 = dht46.readHumidity();
-    float t46 = dht46.readTemperature();
-
-    if (isnan(h46) || isnan(t46)) {
-      Serial.println("I can not read the testimony 46");
-//      return;
-    }
-    String out46 = "d46/h:"+String(h46)+"/t/"+String(t46)+"|";
+    dht[3][0] = 46;
+    dht[3][1] = dht46.readHumidity();
+    dht[3][2] = dht46.readTemperature();
     /*--------46----------*/
     /*--------47----------*/
-    float h47 = dht47.readHumidity();
-    float t47 = dht47.readTemperature();
-
-    if (isnan(h47) || isnan(t47)) {
-      Serial.println("I can not read the testimony 47");
-//      return;
-    }
-    String out47 = "d47/h:"+String(h47)+"/t/"+String(t47)+"|";
+    dht[4][0] = 47;
+    dht[4][1] = dht47.readHumidity();
+    dht[4][2] = dht47.readTemperature();
     /*--------47----------*/
     /*--------48----------*/
-    float h48 = dht48.readHumidity();
-    float t48 = dht48.readTemperature();
-
-    if (isnan(h48) || isnan(t48)) {
-      Serial.println("I can not read the testimony 48");
-//      return;
-    }
-    String out48 = "d48/h:"+String(h48)+"/t/"+String(t48)+"|";
+    dht[5][0] = 48;
+    dht[5][1] = dht48.readHumidity();
+    dht[5][2] = dht48.readTemperature();
     /*--------48----------*/
     /*--------49----------*/
-    float h49 = dht49.readHumidity();
-    float t49 = dht49.readTemperature();
-
-    if (isnan(h49) || isnan(t49)) {
-      Serial.println("I can not read the testimony 49");
-//      return;
-    }
-    String out49 = "d49/h:"+String(h49)+"/t/"+String(t49)+"|";
+    dht[6][0] = 49;
+    dht[6][1] = dht49.readHumidity();
+    dht[6][2] = dht49.readTemperature();
     /*--------49----------*/
     /*--------50----------*/
-    float h50 = dht50.readHumidity();
-    float t50 = dht50.readTemperature();
-
-    if (isnan(h50) || isnan(t50)) {
-      Serial.println("I can not read the testimony 50");
-//      return;
-    }
-    String out50 = "d50/h:"+String(h50)+"/t/"+String(t50)+"|";
+    dht[7][0] = 50;
+    dht[7][1] = dht50.readHumidity();
+    dht[7][2] = dht50.readTemperature();
     /*--------50----------*/
     /*--------51----------*/
-    float h51 = dht51.readHumidity();
-    float t51 = dht51.readTemperature();
-
-    if (isnan(h51) || isnan(t51)) {
-      Serial.println("I can not read the testimony 51");
-//      return;
-    }
-    String out51 = "d51/h:"+String(h51)+"/t/"+String(t51)+"|";
+    dht[8][0] = 51;
+    dht[8][1] = dht51.readHumidity();
+    dht[8][2] = dht51.readTemperature();
     /*--------51----------*/
     /*--------52----------*/
-    float h52 = dht52.readHumidity();
-    float t52 = dht52.readTemperature();
-
-    if (isnan(h52) || isnan(t52)) {
-      Serial.println("I can not read the testimony 52");
-      return;
-    }
-    String out52 = "d52/h:"+String(h52)+"/t/"+String(t52)+"|";
+    dht[9][0] = 52;
+    dht[9][1] = dht52.readHumidity();
+    dht[9][2] = dht52.readTemperature();
     /*--------52----------*/
 
-    String out = out43+out44+out45+out46+out47+out47+out49+out50+out51+out52;
-//    for(int i=46; i<=52; i++){
-//      out = out + 
-//    }
+    String out;
+    for(int i=0; i<10; i++){
+      out = out + "d"+(int)dht[i][0]+"/h:"+String(dht[i][1])+"/t/"+String(dht[i][2])+"|";
+    }
     Serial.println(out);
-    
+//    Serial.println(dht[9][0]);
 }
 
