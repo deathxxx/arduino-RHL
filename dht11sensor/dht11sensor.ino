@@ -48,7 +48,7 @@ void loopReadDht() {
     /*--------44----------*/
     dht[1][0] = 44;
     dht[1][1] = dht44.readHumidity();
-    dht[1][1] = dht44.readTemperature();
+    dht[1][2] = dht44.readTemperature();
     /*--------44----------*/
     /*--------45----------*/
     dht[2][0] = 45;
