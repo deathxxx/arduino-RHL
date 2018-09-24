@@ -1,96 +1,63 @@
-/*
-Connect to Ethernet Using DHCP
-Author:- Embedded Laboratory
-*/
-
 #include <SPI.h>
 #include <Ethernet.h>
 
-#define ETH_CS    10
-#define SD_CS  4
-
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
-//byte mac[] = {0xB0,0xCD,0xAE,0x0F,0xDE,0x10};
-byte mac[] = {
-0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
-};
-
-IPAddress ip(172,16,3,22);
-
-IPAddress server(172,16,3,3); 
-
-EthernetClient client;
+// MAC address from Ethernet shield sticker under board
+byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
+IPAddress ip(192, 168, 89, 22); // IP address, may need to change depending on network
+EthernetServer server(80);  // create a server at port 80
 
 void setup()
 {
-  Serial.begin(9600);
-  Serial.println("Starting Ethernet Connection");
-  pinMode(ETH_CS,OUTPUT);
-  pinMode(SD_CS,OUTPUT);
-  digitalWrite(ETH_CS,LOW); // Select the Ethernet Module.
-  digitalWrite(SD_CS,HIGH); // De-Select the internal SD Card
-  if (Ethernet.begin(mac) == 0)  // Start in DHCP Mode
-  {
-    Serial.println("Failed to configure Ethernet using DHCP, using Static Mode");
-    // If DHCP Mode failed, start in Static Mode
-    Ethernet.begin(mac, ip);
-  }
-  
-  Serial.print("My IP address: ");
-  
-  for (byte thisByte = 0; thisByte < 4; thisByte++)
-  {
-    // print the value of each byte of the IP address:
-    Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print("."); 
-  }
-  Serial.println();
-  
-  // give the Ethernet shield a second to initialize:
-  delay(1000);
-  Serial.println("connecting...");
-
-  // if you get a connection, report back via serial:
-  if (client.connect(server, 5000))
-  {
-    Serial.println("connected");
-  } 
-  else
-  {
-    // if you didn't get a connection to the server:
-    Serial.println("connection failed");
-  }
+    Serial.begin(9600);
+    Ethernet.begin(mac, ip);  // initialize Ethernet device
+    server.begin();           // start to listen for clients
+    Serial.println("setup ok");
 }
 
 void loop()
 {
-  // if there are incoming bytes available 
-  // from the server, read them and print them:
-  if (client.available())
-  {
-    char c = client.read();
-    client.write(c);
-    Serial.print(c);
-  }
+  //Serial.println("loop");
+    EthernetClient client = server.available();  // try to get client
 
-  // as long as there are bytes in the serial queue,
-  // read them and send them out the socket if it's open:
-  while (Serial.available() > 0)
-  {
-    char inChar = Serial.read();
-    if (client.connected())
-    {
-      client.print(inChar); 
-    }
-  }
-
-  // if the server's disconnected, stop the client:
-  if (!client.connected()) {
-    Serial.println();
-    Serial.println("disconnecting.");
-    client.stop();
-    // do nothing:
-    while(true);
-  }
-}
+    if (client) {  // got client?
+        boolean currentLineIsBlank = true;
+        while (client.connected()) {
+            if (client.available()) {   // client data available to read
+                char c = client.read(); // read 1 byte (character) from client
+                // last line of client request is blank and ends with \n
+                // respond to client only after last line received
+                if (c == '\n' && currentLineIsBlank) {
+                    // send a standard http response header
+                    client.println("HTTP/1.1 200 OK");
+                    client.println("Content-Type: text/html");
+                    client.println("Connection: close");
+                    client.println();
+                    // send web page
+                    client.println("<!DOCTYPE html>");
+                    client.println("<html>");
+                    client.println("<head>");
+                    client.println("<title>Arduino Web Page</title>");
+                    client.println("</head>");
+                    client.println("<body>");
+                    client.println("<h1>Hello from Arduino!  Happy Valentine's Day!!!!!!!!!!!!!!!</h1>");
+                    client.println("<p>A web page from the Arduino server. I'm excited about getting on the journey to understanding how the net works.</p>");
+                    client.println("</body>");
+                    client.println("</html>");
+                    break;
+                }
+                // every line of text received from the client ends with \r\n
+                if (c == '\n') {
+                    // last character on line of received text
+                    // starting new line with next character read
+                    currentLineIsBlank = true;
+                }
+                else if (c != '\r') {
+                    // a text character was received from client
+                    currentLineIsBlank = false;
+                }
+            } // end if (client.available())
+        } // end while (client.connected())
+        delay(1);      // give the web browser time to receive the data
+        client.stop(); // close the connection
+    } // end if (client)
+}  
