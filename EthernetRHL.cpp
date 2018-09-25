@@ -32,6 +32,7 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include "EthernetRHL.h"
 
 /*
   MACRO for string handling from PROGMEM
@@ -55,9 +56,11 @@ EthernetServer server(80);
 
 
 
-void setup()
+void EthernetRHL::setup()
 {
-  setup_start();
+  // start the Ethernet connection and the server:
+  Ethernet.begin(mac, ip);
+  server.begin();  
 }
 
 
@@ -83,42 +86,9 @@ int state = 0;
 
 
 
-void loop()
+void EthernetRHL::loop()
 {
-  loop_start();
-}
-
-
-void setup_start() {
-    // start the Ethernet connection and the server:
-  Ethernet.begin(mac, ip);
-  server.begin();
-  Serial.begin(115200);
-}
-
-
-/*
-  Typical request: GET /<request goes here>?firstArg=1&anotherArg=2 HTTP/1.1
-  State 0 - connection opened
-  State 1 - receiving URL
-  State 2 - receiving Arguments
-  State 3 - arguments and/or URL finished
-  State 4 - client has ended request, waiting for server to respond
-  State 5 - server has responded
-  
-  Example of what the server receives:
-  
-  GET /test.html HTTP/1.1
-  Host: 192.168.1.23
-  Connection: keep-alive
-  Cache-Control: max-age=0
-  Upgrade-Insecure-Requests: 1
-  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36
-  Accept-Encoding: gzip, deflate, sdch
-  Accept-Language: en-US,en;q=0.8
-*/
-void loop_start() {
-  // listen for incoming clients
+   // listen for incoming clients
   EthernetClient client = server.available();
   
   if (client) 
@@ -211,7 +181,32 @@ void loop_start() {
 }
 
 
-void respond(EthernetClient client)
+
+
+/*
+  Typical request: GET /<request goes here>?firstArg=1&anotherArg=2 HTTP/1.1
+  State 0 - connection opened
+  State 1 - receiving URL
+  State 2 - receiving Arguments
+  State 3 - arguments and/or URL finished
+  State 4 - client has ended request, waiting for server to respond
+  State 5 - server has responded
+  
+  Example of what the server receives:
+  
+  GET /test.html HTTP/1.1
+  Host: 192.168.1.23
+  Connection: keep-alive
+  Cache-Control: max-age=0
+  Upgrade-Insecure-Requests: 1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36
+  Accept-Encoding: gzip, deflate, sdch
+  Accept-Language: en-US,en;q=0.8
+*/
+
+
+
+void EthernetRHL::respond(EthernetClient client)
 {
   if (strcmp(bufferUrl, P("")) == 0)
   {
@@ -264,7 +259,7 @@ void respond(EthernetClient client)
 }
 
 // 200 OK means the resource was located on the server and the browser (or service consumer) should expect a happy response
-void sendHttpResponseOk(EthernetClient client)
+void EthernetRHL::sendHttpResponseOk(EthernetClient client)
 {
   Serial.println(P("200 OK"));
   Serial.println();
@@ -277,7 +272,7 @@ void sendHttpResponseOk(EthernetClient client)
 }
 
 // 404 means it ain't here. quit asking.
-void sendHttp404(EthernetClient client)
+void EthernetRHL::sendHttp404(EthernetClient client)
 {
   Serial.println(P("404 Not Found"));
   Serial.println();
