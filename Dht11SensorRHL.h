@@ -6,6 +6,7 @@ class Dht11SensorRHL {
     void loop ( void );
     void setupInitDht ( void );
     void loopReadDht ( void );
+    float dht[10][3] = { };
 };
 
 

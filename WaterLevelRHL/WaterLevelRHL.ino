@@ -1,14 +1,9 @@
 void setup()
-
-
 {
-
   Serial.begin(9600);
-
 }
 
 void loop()
-
 {
 
   int waterA6 = analogRead(A6); // read input value

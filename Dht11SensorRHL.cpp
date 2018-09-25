@@ -95,5 +95,7 @@ void Dht11SensorRHL::loopReadDht() {
     }
     Serial.println(out);
 //    Serial.println(dht[9][0]);
+
+    //Dht11SensorRHL::dht = dht;
 }
 
