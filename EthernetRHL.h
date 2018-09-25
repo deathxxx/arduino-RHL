@@ -1,3 +1,4 @@
+#include <Ethernet.h>
 class EthernetRHL {
   public:
     void setup ( void );

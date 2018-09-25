@@ -8,9 +8,13 @@ void FlashingLedRHL::setup(){
 }
 
 void FlashingLedRHL::loop() {
-  digitalWrite(led, HIGH);
-  delay(1000);
-  digitalWrite(led, LOW);
-  delay(1000);
+  if (FlashingLedRHL::on) {
+    digitalWrite(led, LOW);
+    FlashingLedRHL::on = false;
+  } else {
+    digitalWrite(led, HIGH);
+    FlashingLedRHL::on = true;
+  }
+  
 }
 

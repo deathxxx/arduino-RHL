@@ -6,5 +6,6 @@
     void setup (void);
     void loop (void);
     int led = 13;
+    bool on = false;
  };
 
