@@ -14,14 +14,6 @@ DHT dht48(48, DHT11);
 DHT dht49(49, DHT11);
 
 void Dht11SensorRHL::setup() {
-  Dht11SensorRHL::setupInitDht();
-}
-
-void Dht11SensorRHL::loop() {
-    Dht11SensorRHL::loopReadDht();    
-}
-
-void Dht11SensorRHL::setupInitDht() {
   dht40.begin();
   dht41.begin();
   dht42.begin();
@@ -32,12 +24,14 @@ void Dht11SensorRHL::setupInitDht() {
   dht47.begin();
   dht48.begin();
   dht49.begin();  
+
+  startMillis = millis(); 
 }
 
-void Dht11SensorRHL::loopReadDht() {
-
-    float dht [10][3];
-
+void Dht11SensorRHL::loop() {
+  currentMillis = millis();
+  if(currentMillis - startMillis >= period) {
+  
     /*--------40----------*/
     dht[0][0] = 40;
     dht[0][1] = dht40.readHumidity();
@@ -88,14 +82,16 @@ void Dht11SensorRHL::loopReadDht() {
     dht[9][1] = dht49.readHumidity();
     dht[9][2] = dht49.readTemperature();
     /*--------49----------*/
-    
+
+    startMillis = currentMillis;
     String out;
     for(int i=0; i<10; i++){
       out = out + "d"+(int)dht[i][0]+"/h:"+String(dht[i][1])+"/t/"+String(dht[i][2])+"|";
     }
+    out = out + "(" + currentMillis + " millis)";
     Serial.println(out);
-//    Serial.println(dht[9][0]);
 
-    //Dht11SensorRHL::dht = dht;
+    
+  }
 }
 

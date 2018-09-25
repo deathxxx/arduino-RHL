@@ -14,21 +14,22 @@ LcdRHL lc;
 
 void setup() {
   Serial.begin(9600);
-  fl.setup();
-  dhts.setup();
-  eth.setup();
+  //fl.setup();
+  dhts.setup();  
+  //eth.setup();
   wl.setup();
   //rc.setup();
   lc.setup();
 }
 
 void loop() {
-  fl.loop();
+  //fl.loop();
+  
   dhts.loop();
-  eth.loop();
+  //eth.loop();
   wl.loop();
   //rc.loop();
   lc.loop();
-  delay(1000);
+  //delay(1000);
 }
 
