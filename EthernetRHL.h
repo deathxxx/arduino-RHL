@@ -1,10 +1,10 @@
-#include <Ethernet.h>
-class EthernetRHL {
-  public:
-    void setup ( void );
-    void loop ( void );
-    void respond ( EthernetClient client );
-    void sendHttpResponseOk ( EthernetClient client );
-    void sendHttp404 ( EthernetClient client );
-};
+//#include <Ethernet.h>
+//class EthernetRHL {
+//  public:
+//    void setup ( void );
+//    void loop ( void );
+//    void respond ( EthernetClient client );
+//    void sendHttpResponseOk ( EthernetClient client );
+//    void sendHttp404 ( EthernetClient client );
+//};
 

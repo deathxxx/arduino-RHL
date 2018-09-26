@@ -1,13 +1,13 @@
 #include "FlashingLedRHL.h"
 #include "Dht11SensorRHL.h"
-#include "EthernetRHL.h"
+//#include "EthernetRHL.h"
 #include "WaterLevelRHL.h"
 #include "RelayControllerRHL.h"
 #include "LcdRHL.h"
 
 FlashingLedRHL fl;
 Dht11SensorRHL dhts;
-EthernetRHL eth;
+//EthernetRHL eth;
 WaterLevelRHL wl;
 RelayControllerRHL rc;
 LcdRHL lc;
@@ -33,3 +33,5 @@ void loop() {
   //delay(1000);
 }
 
+//reset func
+void(* resetFunc) (void) = 0; //declare reset function @ address 0
