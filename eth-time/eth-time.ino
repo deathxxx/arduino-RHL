@@ -12,7 +12,9 @@
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; 
 // NTP Servers:
+
 IPAddress timeServer(192, 168, 88, 254); // time-a.timefreq.bldrdoc.gov
+// IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
 // IPAddress timeServer(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
 // IPAddress timeServer(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
 

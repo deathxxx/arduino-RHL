@@ -1,35 +1,38 @@
 #include "FlashingLedRHL.h"
 #include "Dht11SensorRHL.h"
-//#include "EthernetRHL.h"
+#include "EthernetRHL.h"
 #include "WaterLevelRHL.h"
 #include "RelayControllerRHL.h"
 #include "LcdRHL.h"
+#include "EthTimeUdp.h"
 
 FlashingLedRHL fl;
 Dht11SensorRHL dhts;
-//EthernetRHL eth;
+EthernetRHL eth;
 WaterLevelRHL wl;
 RelayControllerRHL rc;
 LcdRHL lc;
+//EthTimeUdp etu;
 
 void setup() {
   Serial.begin(9600);
-  //fl.setup();
+  fl.setup();
   dhts.setup();  
-  //eth.setup();
+  eth.setup();
   wl.setup();
-  //rc.setup();
+  rc.setup();
   lc.setup();
+//  etu.setup();
 }
 
 void loop() {
-  //fl.loop();
-  
+  fl.loop();  
   dhts.loop();
-  //eth.loop();
+  eth.loop();
   wl.loop();
-  //rc.loop();
+  rc.loop();
   lc.loop();
+  //etu.loop();
   //delay(1000);
 }
 
