@@ -1,37 +1,49 @@
-//#include "FlashingLedRHL.h"
-//#include "Dht11SensorRHL.h"
+#include "FlashingLedRHL.h"
 #include "EthernetRHL.h"
-//#include "WaterLevelRHL.h"
-//#include "RelayControllerRHL.h"
-//#include "LcdRHL.h"
+#include "Dht11SensorRHL.h"
+#include "WaterLevelRHL.h"
+#include "RelayControllerRHL.h"
+#include "LcdRHL.h"
 
 
-//FlashingLedRHL flashingLed;
-//Dht11SensorRHL dhtSensors;
+FlashingLedRHL flashingLed;
 EthernetRHL ethernet;
-//WaterLevelRHL waterLevel;
-//RelayControllerRHL relayController;
-//LcdRHL lcdOutput;
+Dht11SensorRHL dhtSensors;
+WaterLevelRHL waterLevel;
+RelayControllerRHL relayController;
+LcdRHL lcdOutput;
+
+unsigned long startMillisMain;
+unsigned long currentMillisMain;
+unsigned long periodMain = 5000;
 
 void setup() {
   Serial.begin(9600);
-//  flashingLed.setup();
-//  dhtSensors.serialPrint = false;
-//  dhtSensors.setup();
   ethernet.setup();
+  flashingLed.setup();
+//  dhtSensors.serialPrint = false;
+  dhtSensors.setup();
 //  waterLevel.serialPrint = false;
-//  waterLevel.setup();
+  waterLevel.setup();
   //relayController.setup();
-//  lcdOutput.setup();
+  lcdOutput.setup();
+  startMillisMain = millis();
 }
 
 void loop() {
-//  flashingLed.loop();
-//  dhtSensors.loop();
+  
   ethernet.loop();
-//  waterLevel.loop();
+  flashingLed.loop();
+  dhtSensors.loop();
+  waterLevel.loop();
   //relayController.loop();
-//  lcdOutput.loop();
+  lcdOutput.loop();
+
+  currentMillisMain = millis();
+  if(currentMillisMain - startMillisMain >= periodMain) {
+    Serial.println (ethernet.clockDisplayText());
+    startMillisMain = currentMillisMain;
+  }
 }
 
 //reset func

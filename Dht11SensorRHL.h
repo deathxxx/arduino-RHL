@@ -10,6 +10,7 @@ class Dht11SensorRHL {
     unsigned long currentMillis;
     unsigned long period = 5000;
     bool serialPrint = true;
+    String sensorText = "";
 };
 
 

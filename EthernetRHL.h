@@ -8,7 +8,12 @@ class EthernetRHL {
     void sendHttpResponseOk ( EthernetClient client );
     void sendHttp404 ( EthernetClient client );
 
-    void sendNTPpacket( IPAddress &address );
-    time_t EthernetRHL::getNtpTime();
+    int getTimeAndDate( void );
+    unsigned long sendNTPpacket(IPAddress& address);
+    void clockDisplay( void );
+    void printDigits( int digits );
+
+    String EthernetRHL::clockDisplayText();
+    String EthernetRHL::getDigits(int digits);
 };
 
