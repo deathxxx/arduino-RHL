@@ -8,7 +8,7 @@ class EthernetRHL {
     void sendHttpResponseOk ( EthernetClient client );
     void sendHttp404 ( EthernetClient client );
 
-//    void sendNTPpacket( IPAddress &address );
-//    time_t EthernetRHL::getNtpTime();
+    void sendNTPpacket( IPAddress &address );
+    time_t EthernetRHL::getNtpTime();
 };
 

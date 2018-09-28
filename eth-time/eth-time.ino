@@ -11,6 +11,8 @@
 #include <SPI.h>
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; 
+//IPAddress ip      (192, 168, 88, 22);  // Private static IP address
+
 // NTP Servers:
 
 IPAddress timeServer(192, 168, 88, 254); // time-a.timefreq.bldrdoc.gov
@@ -18,8 +20,8 @@ IPAddress timeServer(192, 168, 88, 254); // time-a.timefreq.bldrdoc.gov
 // IPAddress timeServer(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
 // IPAddress timeServer(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
 
-
-const int timeZone = 1;     // Central European Time
+const int timeZone = +6;
+//const int timeZone = 1;     // Central European Time
 //const int timeZone = -5;  // Eastern Standard Time (USA)
 //const int timeZone = -4;  // Eastern Daylight Time (USA)
 //const int timeZone = -8;  // Pacific Standard Time (USA)
@@ -36,14 +38,28 @@ void setup()
   delay(250);
   Serial.println("TimeNTP Example");
   if (Ethernet.begin(mac) == 0) {
+    Serial.println("Start DHCP");
     // no point in carrying on, so do nothing forevermore:
     while (1) {
       Serial.println("Failed to configure Ethernet using DHCP");
       delay(10000);
     }
-  }
-  Serial.print("IP number assigned by DHCP is ");
-  Serial.println(Ethernet.localIP());
+  } 
+//  else {
+//    Serial.println("Start static ip");
+//    Ethernet.begin(mac,ip);  
+//  }
+  
+//  Serial.print("IP number assigned by DHCP is ");
+//  Serial.println(Ethernet.localIP());
+Serial.print("ip = ");
+Serial.println(Ethernet.localIP());
+Serial.print("subnet mask = ");
+Serial.println(Ethernet.subnetMask());
+Serial.print("gateway = ");
+Serial.println(Ethernet.gatewayIP());
+Serial.print("dns = ");
+Serial.println(Ethernet.dnsServerIP());
   Udp.begin(localPort);
   Serial.println("waiting for sync");
   setSyncProvider(getNtpTime);
@@ -53,6 +69,7 @@ time_t prevDisplay = 0; // when the digital clock was displayed
 
 void loop()
 {  
+//  setSyncProvider(getNtpTime);
   if (timeStatus() != timeNotSet) {
     if (now() != prevDisplay) { //update the display only if time has changed
       prevDisplay = now();
@@ -90,12 +107,13 @@ byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
 time_t getNtpTime()
 {
-  while (Udp.parsePacket() > 0) ; // discard any previously received packets
+  //while (Udp.parsePacket() > 0) ; // discard any previously received packets
   Serial.println("Transmit NTP Request");
   sendNTPpacket(timeServer);
   uint32_t beginWait = millis();
-  while (millis() - beginWait < 1500) {
+  while (millis() - beginWait < 15000) {
     int size = Udp.parsePacket();
+    Serial.println(size);
     if (size >= NTP_PACKET_SIZE) {
       Serial.println("Receive NTP Response");
       Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer

@@ -9,6 +9,7 @@ class Dht11SensorRHL {
     unsigned long startMillis;
     unsigned long currentMillis;
     unsigned long period = 5000;
+    bool serialPrint = true;
 };
 
 

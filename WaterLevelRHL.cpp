@@ -30,29 +30,32 @@ void WaterLevelRHL::loop() {
     water[3][1] = waterA9;
     water[4][0] = 10;
     water[4][1] = waterA10;
-  
-    Serial.print("Water Level Value   ");
-  
-    Serial.print(" A6 - ");
-    Serial.print(waterA6);
-    Serial.print(" | ");
-    Serial.print(" A7 - ");
-    Serial.print(waterA7);
-    Serial.print(" | ");
-    Serial.print(" A8 - ");
-    Serial.print(waterA8);
-    Serial.print(" | ");
-    Serial.print(" A9 - ");
-    Serial.print(waterA9);
-    Serial.print(" | ");
-    Serial.print(" A10 - ");
-    Serial.print(waterA10);
-    Serial.print(" (");
-    
 
     startMillis = currentMillis;
-    Serial.print(currentMillis);  
-    Serial.println(" millis)");
+    
+    if (serialPrint) {
+      Serial.print("Water Level Value   ");
+    
+      Serial.print(" A6 - ");
+      Serial.print(waterA6);
+      Serial.print(" | ");
+      Serial.print(" A7 - ");
+      Serial.print(waterA7);
+      Serial.print(" | ");
+      Serial.print(" A8 - ");
+      Serial.print(waterA8);
+      Serial.print(" | ");
+      Serial.print(" A9 - ");
+      Serial.print(waterA9);
+      Serial.print(" | ");
+      Serial.print(" A10 - ");
+      Serial.print(waterA10);
+      Serial.print(" (");
+      
+  
+      Serial.print(currentMillis);  
+      Serial.println(" millis)");
+    }
   }
 }
 

@@ -34,6 +34,7 @@
 #include <Ethernet.h>
 #include "EthernetRHL.h"
 #include <EthernetUdp.h>
+#include <TimeLib.h>
 
 /*
   MACRO for string handling from PROGMEM
@@ -45,9 +46,11 @@ char p_buffer[150];
 
 // Ethernet Interface Settings
 byte mac[] =      { 0xAD, 0xDE, 0xEF, 0xBB, 0xFD, 0xDD };
+//byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; 
 IPAddress ip      (192, 168, 88, 22);  // Private static IP address
 IPAddress myDns   (192, 168, 88, 1);   // DNS is not needed for this example
-IPAddress gateway (0, 0, 0, 0);       // Default gateway disabled for security reasons
+IPAddress gateway (192, 168, 88, 1);       // Default gateway disabled for security reasons
+//IPAddress gateway (0, 0, 0, 0);       // Default gateway disabled for security reasons
 IPAddress subnet  (255, 255, 255, 0); // Class C subnet; typical
 
 // HTTP lives on TCP port 80
@@ -55,15 +58,143 @@ EthernetServer server(80);
 
 
 
-
+//for ntp udp
+EthernetUDP Udp;
+unsigned int localPort = 8888;  // local port to listen for UDP packets
+IPAddress timeServer(192, 168, 88, 254); // local
 
 void EthernetRHL::setup()
 {
+    while (!Serial) ; // Needed for Leonardo only
+  delay(250);
+  Serial.println("Start Ethernet (setup)");
   // start the Ethernet connection and the server:
-  Ethernet.begin(mac, ip);
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Starting DHCP");
+    // no point in carrying on, so do nothing forevermore:
+//    while (1) {
+//      Serial.println("Failed to configure Ethernet using DHCP");
+//      delay(1000);
+//    }
+  } else {
+    Serial.println("Start static ip ethernet");
+    Ethernet.begin(mac, ip);
+  }
+
+Serial.print("ip = ");
+Serial.println(Ethernet.localIP());
+Serial.print("subnet mask = ");
+Serial.println(Ethernet.subnetMask());
+Serial.print("gateway = ");
+Serial.println(Ethernet.gatewayIP());
+Serial.print("dns = ");
+Serial.println(Ethernet.dnsServerIP());
   server.begin();  
-//  EthernetRHL::getNtpTime();
+  uint8_t udp_status = Udp.begin(localPort);
+  Serial.print ("udp_status - ");
+  Serial.println(udp_status);
+  setSyncProvider(  EthernetRHL::getNtpTime() );
+  Serial.println("Start Ethernet (setup-end)");
 }
+
+
+
+
+
+/*-------- NTP code ----------*/
+
+//IPAddress timeServer(192, 168, 88, 254); // local
+// IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
+// IPAddress timeServer(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
+// IPAddress timeServer(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
+
+//EthernetUDP Udp;
+//unsigned int localPort = 8888;  // local port to listen for UDP packets
+
+const int timeZone = 1;     // Central European Time
+//const int timeZone = -5;  // Eastern Standard Time (USA)
+//const int timeZone = -4;  // Eastern Daylight Time (USA)
+//const int timeZone = -8;  // Pacific Standard Time (USA)
+//const int timeZone = -7;  // Pacific Daylight Time (USA)
+
+
+
+const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+
+time_t EthernetRHL::getNtpTime()
+{
+  while (Udp.parsePacket() > 0) ; // discard any previously received packets
+  Serial.print("Transmit NTP Request to ");
+  Serial.println(timeServer);
+  EthernetRHL::sendNTPpacket(timeServer);
+  uint32_t beginWait = millis();
+  while (millis() - beginWait < 1500) {
+    int size = Udp.parsePacket();
+    Serial.println(size);
+    if (size >= NTP_PACKET_SIZE) {
+      Serial.println("Receive NTP Response");
+      Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+      unsigned long secsSince1900;
+      // convert four bytes starting at location 40 to a long integer
+      secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+      secsSince1900 |= (unsigned long)packetBuffer[43];
+      return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+    }
+  }
+  Serial.println("No NTP Response :-(");
+  return 0; // return 0 if unable to get the time
+}
+
+// send an NTP request to the time server at the given address
+void EthernetRHL::sendNTPpacket(IPAddress &address)
+{
+  Serial.println(address);
+  // set all bytes in the buffer to 0
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  // Initialize values needed to form NTP request
+  // (see URL above for details on the packets)
+  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+  packetBuffer[1] = 0;     // Stratum, or type of clock
+  packetBuffer[2] = 6;     // Polling Interval
+  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  // 8 bytes of zero for Root Delay & Root Dispersion
+  packetBuffer[12]  = 49;
+  packetBuffer[13]  = 0x4E;
+  packetBuffer[14]  = 49;
+  packetBuffer[15]  = 52;
+  // all NTP fields have been given values, now
+  // you can send a packet requesting a timestamp:                 
+  Udp.beginPacket(address, 123); //NTP requests are to port 123
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
+}
+
+
+
+
+
+/*-------- NTP code end ----------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -284,72 +415,4 @@ void EthernetRHL::sendHttp404(EthernetClient client)
   client.println(P("Connnection: close")); // do not reuse connection
   client.println();
 }
-//
-///*-------- NTP code ----------*/
-//
-//IPAddress timeServer(192, 168, 88, 254); // local
-//// IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
-//// IPAddress timeServer(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
-//// IPAddress timeServer(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
-//
-//
-//const int timeZone = 1;     // Central European Time
-////const int timeZone = -5;  // Eastern Standard Time (USA)
-////const int timeZone = -4;  // Eastern Daylight Time (USA)
-////const int timeZone = -8;  // Pacific Standard Time (USA)
-////const int timeZone = -7;  // Pacific Daylight Time (USA)
-//
-//
-//EthernetUDP Udp;
-//unsigned int localPort = 8888;  // local port to listen for UDP packets
-//
-//const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
-//byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
-//
-//time_t EthernetRHL::getNtpTime()
-//{
-//  while (Udp.parsePacket() > 0) ; // discard any previously received packets
-//  Serial.println("Transmit NTP Request");
-//  EthernetRHL::sendNTPpacket(timeServer);
-//  uint32_t beginWait = millis();
-//  while (millis() - beginWait < 1500) {
-//    int size = Udp.parsePacket();
-//    if (size >= NTP_PACKET_SIZE) {
-//      Serial.println("Receive NTP Response");
-//      Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
-//      unsigned long secsSince1900;
-//      // convert four bytes starting at location 40 to a long integer
-//      secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
-//      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-//      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-//      secsSince1900 |= (unsigned long)packetBuffer[43];
-//      return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
-//    }
-//  }
-//  Serial.println("No NTP Response :-(");
-//  return 0; // return 0 if unable to get the time
-//}
-//
-//// send an NTP request to the time server at the given address
-//void EthernetRHL::sendNTPpacket(IPAddress &address)
-//{
-//  // set all bytes in the buffer to 0
-//  memset(packetBuffer, 0, NTP_PACKET_SIZE);
-//  // Initialize values needed to form NTP request
-//  // (see URL above for details on the packets)
-//  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
-//  packetBuffer[1] = 0;     // Stratum, or type of clock
-//  packetBuffer[2] = 6;     // Polling Interval
-//  packetBuffer[3] = 0xEC;  // Peer Clock Precision
-//  // 8 bytes of zero for Root Delay & Root Dispersion
-//  packetBuffer[12]  = 49;
-//  packetBuffer[13]  = 0x4E;
-//  packetBuffer[14]  = 49;
-//  packetBuffer[15]  = 52;
-//  // all NTP fields have been given values, now
-//  // you can send a packet requesting a timestamp:                 
-//  Udp.beginPacket(address, 123); //NTP requests are to port 123
-//  Udp.write(packetBuffer, NTP_PACKET_SIZE);
-//  Udp.endPacket();
-//}
 

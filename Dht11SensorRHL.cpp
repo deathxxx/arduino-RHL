@@ -84,12 +84,14 @@ void Dht11SensorRHL::loop() {
     /*--------49----------*/
 
     startMillis = currentMillis;
-    String out;
-    for(int i=0; i<10; i++){
-      out = out + "d"+(int)dht[i][0]+"/h:"+String(dht[i][1])+"/t/"+String(dht[i][2])+"|";
+    if (serialPrint) {
+      String out;
+      for(int i=0; i<10; i++){
+        out = out + "d"+(int)dht[i][0]+"/h:"+String(dht[i][1])+"/t/"+String(dht[i][2])+"|";
+      }
+      out = out + "(" + currentMillis + " millis)";
+      Serial.println(out);
     }
-    out = out + "(" + currentMillis + " millis)";
-    Serial.println(out);
 
     
   }
