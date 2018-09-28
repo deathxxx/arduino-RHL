@@ -92,7 +92,7 @@ EthernetUDP Udp;
 unsigned long ntpLastUpdate = 0;   
 // Check last time clock displayed (Not in Production)
 time_t prevDisplay = 0;      
-
+/* ******** NTP Server Settings end***** */
 
 
 
